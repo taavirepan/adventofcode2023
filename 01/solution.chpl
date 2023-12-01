@@ -41,7 +41,7 @@ proc part2(line: string)
 
 
 var lines = stdin.lines(true);
-var data1 = for line in lines do part1(line);
-var data2 = for line in lines do part2(line);
+var data1 = part1(lines);
+var data2 = part2(lines);
 writeln(+ reduce data1);
 writeln(+ reduce data2);
