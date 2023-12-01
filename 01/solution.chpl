@@ -35,13 +35,11 @@ iter string.match_on_all_positions(re:regex(string)): string
 proc part2(line: string)
 {
     var re = new regex("one|two|three|four|five|six|seven|eight|nine|[0-9]");
-    var digits = for m in line.match_on_all_positions(re) do translate(m);
+    var digits = translate(line.match_on_all_positions(re));
     return (digits[0]*10 + digits[digits.size - 1]);
 }
 
 
 var lines = stdin.lines(true);
-var data1 = part1(lines);
-var data2 = part2(lines);
-writeln(+ reduce data1);
-writeln(+ reduce data2);
+writeln(+ reduce part1(lines));
+writeln(+ reduce part2(lines));
