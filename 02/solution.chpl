@@ -33,7 +33,7 @@ proc task2(line: string): int
     var id:int;
     for counts in parse(line, id) {
         for key in counts.keys() {
-            min_counts[key] = max(counts[key], min_counts.get(key, 0));
+            min_counts[key] = max(counts[key], min_counts[key]);
         }        
     }
     return * reduce min_counts.values();
