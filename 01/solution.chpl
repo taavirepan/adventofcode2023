@@ -28,7 +28,7 @@ iter string.match_on_all_positions(re:regex(string)): string
 {
     for i in this.indices {
         var m = re.match(this[i..]);
-        if m then yield this[i..].this(m);
+        if m then yield this[i..](m);
     }
 }
 
