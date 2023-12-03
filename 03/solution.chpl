@@ -8,7 +8,7 @@ proc check(x)
     return y[0] != 46 || y[y.size - 1] != 46;
 }
 
-proc symbols(lines, i, match) {
+proc has_symbol(lines, i, match) {
     if i > 0
     {
         if check(lines[i-1](match)) then
@@ -22,10 +22,6 @@ proc symbols(lines, i, match) {
     return false;
 }
 
-proc extend(match, line) {
-    return new regexMatch(true, match.byteOffset - 1, match.numBytes + 2);
-}
-
 iter task1(lines) {
     var re = new regex("[[:digit:]]+");
     for i in lines.indices
@@ -33,9 +29,9 @@ iter task1(lines) {
         var line = lines[i];
         for match in re.matches(line)
         {
-            var extended = extend(match[0], line);
+            var extended = new regexMatch(true, match[0].byteOffset - 1, match[0].numBytes + 2);
             var s = line(extended);
-            if s[0] != '.' || s[s.size - 1] != '.' || symbols(lines, i, extended) then
+            if s[0] != '.' || s[s.size - 1] != '.' || has_symbol(lines, i, extended) then
                 yield line(match[0]):int;
         }
     }
