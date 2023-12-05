@@ -2,17 +2,25 @@ use Regex;
 use IO;
 use List;
 
+
+iter parse_block(block) {
+    for line in block.split("\n")
+    {
+        if line.size == 0 || line[line.size - 1] == ":" then
+            continue;
+        var parsed = for s in line.split() do s:int;
+        yield parsed;
+    }
+}
+
 proc task1(blocks) {
     var re = new regex("[[:digit:]]+");
     var seeds = for match in re.matches(blocks[0]) do blocks[0][match[0]]:int;
     for block in blocks[1..]
     {
         var seeds2 = seeds;
-        for line in block.split("\n")
+        for parsed in parse_block(block)
         {
-            if line.size == 0 || line[line.size - 1] == ":" then
-                continue;
-            var parsed = for s in line.split() do s:int;
             for i in seeds.indices
             {
                 var seed = seeds[i];
@@ -23,16 +31,6 @@ proc task1(blocks) {
         seeds = seeds2;
     }
     return min reduce seeds;
-}
-
-iter parse_block(block) {
-    for line in block.split("\n")
-    {
-        if line.size == 0 || line[line.size - 1] == ":" then
-            continue;
-        var parsed = for s in line.split() do s:int;
-        yield parsed;
-    }
 }
 
 proc task2(blocks) {
