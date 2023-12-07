@@ -8,10 +8,9 @@ proc parse(line: string) {
 
 record Poker {
     proc key(hand) {
-        // var cards = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"];
-        var cards = ["A", "K", "Q", "T", "9", "8", "7", "6", "5", "4", "3", "2"];
+        var cards = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"];
+        // var jokers = hand[0].count("J");
         var hand_key: 5*int;
-        var jokers = hand[0].count("J");
         for i in 0..4
         {
             hand_key[i] = 12;
@@ -21,46 +20,19 @@ record Poker {
                     hand_key[i] = j;
             }
         }
-        for card in cards
-        {
-            if (hand[0].count(card) + jokers >= 5) then
-                return (1, hand_key);
-        }
-        for card in cards
-        {
-            if (hand[0].count(card) + jokers >= 4) then
-                return (2, hand_key);
-        }
-        for card in cards
-        {
-            if hand[0].count(card) + jokers >= 3
-            {
-                var jokers2 = jokers - (3 - hand[0].count(card));
-                for card2 in cards
-                {
-                    if card == card2 then
-                        continue;
-                    if (hand[0].count(card2) + jokers2 >= 2) then
-                        return (3, hand_key);
-                }
-                return (4, hand_key);
-            }
-        }
-        for card in cards
-        {
-            if (hand[0].count(card) + jokers >= 2)
-            {
-                for card2 in cards
-                {
-                    var jokers2 = jokers - (2 - hand[0].count(card));
-                    if card == card2 then
-                        continue;
-                    if (hand[0].count(card2) + jokers2 >= 2) then
-                        return (5, hand_key);
-                }
-                return (6, hand_key);
-            }
-        }
+        var counts = sorted(for card in cards do -hand[0].count(card));
+        if counts[0] == -5 then
+            return (1, hand_key);
+        if counts[0] == -4 then
+            return (2, hand_key);
+        if counts[0] == -3 && counts[1] == -2 then
+            return (3, hand_key);
+        if counts[0] == -3 then
+            return (4, hand_key);
+        if counts[0] == -2 && counts[1] == -2 then
+            return (5, hand_key);
+        if counts[0] == -2 then
+            return (6, hand_key);
         return (7, hand_key);
     }
 }
