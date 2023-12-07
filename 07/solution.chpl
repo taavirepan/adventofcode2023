@@ -7,10 +7,14 @@ proc parse(line: string) {
 }
 
 record Poker {
+    const part: int;
     proc key(hand) {
-        // var cards = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"];
-        var cards = ["A", "K", "Q", "T", "9", "8", "7", "6", "5", "4", "3", "2"];
-        var jokers = hand[0].count("J");
+        var cards = if part == 1 then
+                ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"]
+            else
+                ["A", "K", "Q", "T", "9", "8", "7", "6", "5", "4", "3", "2"];
+
+        var jokers = if part == 1 then 0 else hand[0].count("J");
         var hand_key: 5*int;
         for i in 0..4
         {
@@ -37,12 +41,17 @@ record Poker {
         return (7, hand_key);
     }
 }
-var poker: Poker;
 
-var data = sorted(parse(stdin.lines(true)), poker);
-var ret: int;
-for i in 1..data.size
+var input = parse(stdin.lines(true));
+
+for part in [1, 2]
 {
-    ret += i * data[data.size-i][1];
+    var poker = new Poker(part);
+    var data = sorted(input, poker);
+    var ret: int;
+    for i in 1..data.size
+    {
+        ret += i * data[data.size-i][1];
+    }
+    writeln(ret);
 }
-writeln(ret);
