@@ -18,12 +18,9 @@ record Poker {
         var hand_key: 5*int;
         for i in 0..4
         {
-            hand_key[i] = 12;
-            for j in cards.indices
-            {
-                if hand[0][i] == cards[j] then
-                    hand_key[i] = j;
-            }
+            hand_key[i] = cards.find(hand[0][i]);
+            if hand_key[i] == -1 then
+                hand_key[i] = 12;
         }
         var counts = sorted(for card in cards do -hand[0].count(card));
         if -counts[0] + jokers >= 5 then
