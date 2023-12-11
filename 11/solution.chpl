@@ -12,7 +12,7 @@ iter read_input() {
     }
 }
 
-iter expand(data) {
+iter expand(data, multiplier=1) {
     var rows: set(int);
     var cols: set(int);
     var bounds: 2*int;
@@ -41,11 +41,11 @@ iter expand(data) {
     {
         const di = + reduce (for k in 0..i-1 do if emptyrows.contains(k) then 1 else 0);
         const dj = + reduce (for k in 0..j-1 do if emptycols.contains(k) then 1 else 0);
-        yield (i+di, j+dj);
+        yield (i+di*multiplier, j+dj*multiplier);
     }
 }
 
-iter task1(data) {
+iter solve(data) {
     for i in 0..data.size-2
     {
         const p1 = data[i];
@@ -58,5 +58,7 @@ iter task1(data) {
 }
 
 var data0 = read_input();
-var data = expand(data0);
-writeln(+ reduce task1(data));
+var data1 = expand(data0);
+writeln(+ reduce solve(data1));
+var data2 = expand(data0, 999999);
+writeln(+ reduce solve(data2));
