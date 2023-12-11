@@ -1,5 +1,6 @@
 use IO;
 use List;
+use Set;
 
 proc translate(sym): int(8) {
     select sym {
@@ -25,54 +26,92 @@ proc read_input() {
     return ret;
 }
 
-iter directions(pipes, pos) {
-    if pipes & 0b0100 then
+iter candidate_steps(data, pos) {
+    if data[pos] & 0b0100 then
         yield pos + (0, 1);
-    if pipes & 0b1000 then
+    if data[pos] & 0b1000 then
         yield pos + (0, -1);
-    if pipes & 0b0001 then
+    if data[pos] & 0b0001 then
         yield pos + (1, 0);
-    if pipes & 0b0010 then
+    if data[pos] & 0b0010 then
         yield pos + (-1, 0);
 }
 
-record Node {
-    var pos: 2*int;
-    var distance: int;
+iter directions(data, pos) {
+    for p in candidate_steps(data, pos)
+    {
+        if !data.domain.contains(p) then
+            continue;
+        for p0 in candidate_steps(data, p)
+        {
+            if p0 == pos then
+                yield p;
+        }
+    }
 }
 
-proc task1(data: [?d] int(8)) {
-    var ret: int;
-    var distance: [d] int = -1;
-    var queue: list(Node);
-    queue.pushBack(new Node(data.find(-1), 0));
-    while queue.size
+proc find_loop(data: [?d] int(8)) {
+    var visited: [d] bool;
+    var path: list(2*int);
+    var best: list(2*int);
+    var start = data.find(-1);
+    path.pushBack(start);
+    label outer while (path.size)
     {
-        var node = queue.getAndRemove(0);
-        // if distance[node.pos] != -1 then
-        //     continue;
-        distance[node.pos] = node.distance;
-        if node.distance > ret
+        var loops: bool;
+        visited[path.last] = true;
+        for next in directions(data, path.last)
         {
-            // var nbors = + reduce (for p in directions(data[node.pos], node.pos) do if distance[p] == node.distance - 1 then 1 else 0);
-            // if nbors >= 2 then
-                ret = node.distance;
-        }
-        for p in directions(data[node.pos], node.pos)
-        {
-            if distance.domain.contains(p) && distance[p] == -1 && data[p] != 0
+            loops |= next == start;
+            if !visited[next]
             {
-                for pp in directions(data[p], p)
-                {
-                    if pp == node.pos then
-                        queue.pushBack(new Node(p, node.distance + 1));
-                }
+
+                path.pushBack(next);
+                continue outer;
             }
+        }
+
+        // fallback, found no good candidate
+        if loops && path.size > best.size then
+            best = path;
+        path.popBack();
+    }
+    best.pushBack(start);
+    return best;
+}
+
+proc mark_edges(data: [?d] int(8), loop) {
+    var ret: [d] int;
+    for i in 1..loop.size-1
+    {
+        const p1 = loop[i-1];
+        const p2 = loop[i];
+        if p1[1] == p2[1]
+        {
+            const d = p1[0] - p2[0];
+            ret[p1] += d;
+            ret[p2] += d;
         }
     }
     return ret;
 }
 
+proc inside(p, edges, loop) {
+    var count: int;
+    if loop.contains(p) then
+        return false;
+    for i in 0..p[1]
+    {
+        count += edges[p[0], i];
+    }
+    return count != 0;
+}
+
 var data = read_input();
-writeln(task1(data));
-// 6563 too low
+var loop = find_loop(data);
+
+writeln(loop.size / 2);
+
+var edges = mark_edges(data, loop);
+var loopset = new set(2*int, loop);
+writeln(+ reduce (for p in edges.indices do inside(p, edges, loopset)));
