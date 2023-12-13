@@ -1,8 +1,14 @@
 use IO;
 use List;
 
-proc parse(line: string) {
-    var s = line.split();
+proc parse(line: string, count: int) {
+    var s0 = line.split();
+    var s = (s0[0], s0[1]);
+    for i in 2..count
+    {
+        s[0] += "?" + s0[0];
+        s[1] += "," + s0[1];
+    }
     var numbers = for x in s[1].split(",") do x:int;
     return ("." + s[0], new list(numbers));
 }
@@ -14,7 +20,7 @@ proc is_legit(s, n)
     return lead.count("#") == 0 && group.count(".") == 0;
 }
 
-proc task1(data: (string, list(int))): int {
+proc solve(data: (string, list(int))): int {
     if data[1].size == 0
     {
         return if data[0].count("#") > 0 then 0 else 1;
@@ -26,10 +32,11 @@ proc task1(data: (string, list(int))): int {
     {
         const first = data[0][0..i-1];
         if is_legit(first, group) then
-            ret += task1((data[0][i..data[0].size-1], rest));
+            ret += solve((data[0][i..data[0].size-1], rest));
     }
     return ret;
 }
 
-var lines = parse(stdin.lines(true));
-writeln(+ reduce task1(lines));
+var lines = stdin.lines(true);
+writeln(+ reduce solve(parse(lines, 1)));
+writeln(+ reduce solve(parse(lines, 5)));
