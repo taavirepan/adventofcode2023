@@ -50,10 +50,10 @@ record Node {
     }
 }
 
-proc shortest_path(data) {
-    var visited: [data.dim(0), data.dim(1), 0..3, 0..3] bool = false;
+proc shortest_path(data, direction, min_steps, max_steps) {
+    var visited: [data.dim(0), data.dim(1), 0..3, 0..10] bool = false;
     var nodes = new Heap.heap(Node, comparator=reverseComparator);
-    nodes.push(new Node(direction=1));
+    nodes.push(new Node(direction=direction));
 
     while (nodes.size > 0) {
         var node = nodes.pop();
@@ -63,18 +63,23 @@ proc shortest_path(data) {
         visited[node.i, node.j, node.direction, node.straight_steps] = true;
         node.heat_loss += data[node.i, node.j];
 
-        if node.i == data.dim(0).high && node.j == data.dim(1).high {
+        if node.i == data.dim(0).high && node.j == data.dim(1).high && node.straight_steps >= min_steps {
             return node.heat_loss - data[1, 1];
         }
 
-        if (node.straight_steps < 2) {
+        if (node.straight_steps < max_steps) {
             nodes.push(node.straight);
         }
-        nodes.push(node.left);
-        nodes.push(node.right);
+        if (node.straight_steps >= min_steps) {
+            nodes.push(node.left);
+            nodes.push(node.right);
+        }
     }
     return -1;
 }
 
 var data = read_input();
-writeln(shortest_path(data));
+writeln(shortest_path(data, 1, 0, 2));
+for direction in 0..3 {
+    writeln(shortest_path(data, direction, 3, 9));
+}
