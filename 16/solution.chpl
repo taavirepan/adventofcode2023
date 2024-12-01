@@ -52,8 +52,23 @@ proc energized(t: uint(8)) {
     }
 }
 
+proc part1(data, i0, j0, di, dj) {
+    var travelled: [data.dim(0), data.dim(1)] uint(8) = 0;
+    travel(data, travelled, i0, j0, di, dj);
+    return + reduce energized(travelled);
+}   
+
+iter part2(data) {
+    for i in data.dim(0) {
+        yield part1(data, i, 0, 0, 1);
+        yield part1(data, i, data.dim(1).high, 0, -1);
+    }
+    for j in data.dim(1) {
+        yield part1(data, 0, j, 1, 0);
+        yield part1(data, data.dim(0).high, j, -1, 0);
+    }
+}
+
 var data = read_map();
-var travelled: [data.dim(0), data.dim(1)] uint(8) = 0;
-travel(data, travelled, 0, 0, 0, 1);
-writeln(+ reduce energized(travelled));
-// writeln(travelled);
+writeln(part1(data, 0, 0, 0, 1));
+writeln(max reduce part2(data));
